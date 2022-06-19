@@ -1,7 +1,7 @@
 name: Build and Publish Browsesrtix Browser Base
 on:
-  - release:
-      types: [published]
+  release:
+    types: [published]
 
 jobs:
   build_and_push:
