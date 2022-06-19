@@ -1,8 +1,7 @@
-name: Publish Docker image
-on: [push]
-#  - push
-#  - release:
-#      types: [published]
+name: Build and Publish Browsesrtix Browser Base
+on:
+  - release:
+      types: [published]
 
 jobs:
   build_and_push:

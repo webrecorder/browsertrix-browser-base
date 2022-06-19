@@ -1,12 +1,17 @@
 # Base Browser for Browsertrix Crawler
 
-This repository contains the base platform-specific deb files for Browsertrix Crawler builds.
+This repository contains the browser .deb files as well as a Dockerfile for platform-specific browser image for Browsertrix Crawler, based on Ubuntu 22.04.
 
-The `.deb` files are placed in platform-specific directories, `linux/amd64` and `linux/arm64` to support
-builds for those platforms. Chromium is used for ARM64 while Chrome is used for amd64 builds.
+The build uses Google Chrome for AMD64 builds and Chromium builds for ARM64
 
-The image can be built manually via `VERSION=101 docker buildx build --build-arg VERSION=$VERSION --platform linux/amd64,linux/arm64 --push -t webrecorder/browsertrix-browser-base:$VERSION .`
+The `.deb` files are placed in platform-specific directories, `<VERSION>/linux/amd64` and `<VERSION>/linux/arm64` to support
+builds for those platform.
 
 The CI is also setup to build the image and push on release.
 
-The current browser (Chrome/Chromium) is 101.
+This image can be accessed from `webrecorder/browsertrix-browser-base:<VERSION>`.
+
+See `build.sh` for how to build this image locally.
+
+The releases correspond to a new version of Chrome/Chromium, and current latest release is: **101**.
+
