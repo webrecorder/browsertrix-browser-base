@@ -23,7 +23,7 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 ARG TARGETPLATFORM
 ARG VERSION=$VERSION
 
-COPY $VERSION/$TARGETPLATFORM/*.deb /deb/
+COPY $VERSION/$TARGETPLATFORM/*.deb /tmp/deb/
 
-RUN echo "installing from $TARGETPLATFORM"; dpkg -i /deb/*.deb;
+RUN echo "installing from $TARGETPLATFORM"; dpkg -i /tmp/deb/*.deb; rm -rf /tmp/deb/
 
