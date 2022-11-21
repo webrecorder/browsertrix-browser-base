@@ -1,11 +1,16 @@
-FROM ubuntu:jammy
+FROM ubuntu:jammy AS base
+
+ARG BROWSER="brave"
+ENV BROWSER=$BROWSER
+ARG BROWSER_VERSION="latest"
+ENV BROWSER_VERSION=$BROWSER_VERSION
 
 # Accept Microsoft EULA agreement for ttf-mscorefonts-installer
 RUN echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections
 
 RUN apt-get update -y && apt-get install --no-install-recommends -qqy software-properties-common \
     && apt-get update -y \
-    && apt-get install --no-install-recommends -qqy build-essential locales-all redis-server xvfb gpg-agent curl git socat \
+    && apt-get install --no-install-recommends -qqy build-essential locales-all redis-server xvfb gpg-agent apt-transport-https curl git socat \
       gpg ca-certificates libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
       libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libpango-1.0-0 libcairo2 libasound2 libgtk-3-0 \
       libxtst6 xdg-utils libc-bin hicolor-icon-theme python3-pip python3-dev \
@@ -20,10 +25,50 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# -----------------------------------------------------------------------------
+
+FROM base AS brave
+
+ARG TARGETARCH
 ARG TARGETPLATFORM
-ARG VERSION=$VERSION
 
-COPY $VERSION/$TARGETPLATFORM/*.deb /tmp/deb/
+# Add Brave repository so we can grab brave-keyring after installing deb
+RUN curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg arch=amd64] https://brave-browser-apt-release.s3.brave.com/ stable main"|tee /etc/apt/sources.list.d/brave-browser-release.list \
+    && apt-get update
 
-RUN echo "installing from $TARGETPLATFORM"; dpkg -i /tmp/deb/*.deb; rm -rf /tmp/deb/
+RUN if ["$BROWSER_VERSION" = "latest" ] ; \
+    then \
+        debname=$(curl -sL "https://api.github.com/repos/brave/brave-browser/releases/latest" \
+            | grep "$TARGETARCH.deb\",$" \
+            | cut -d : -f 2,3 \
+            | tr -d \",\,,\[:space:]) \
+        && tagname=$(curl -sL "https://api.github.com/repos/brave/brave-browser/releases/latest" \
+            | grep "tag_name" \
+            | cut -d : -f 2,3 \
+            | tr -d \",\,,\[:space:]) \
+        && curl -sL "https://github.com/brave/brave-browser/releases/download/$tagname/$debname" -o brave.deb ; \
+    else \
+        debname=$(curl -sL "https://api.github.com/repos/brave/brave-browser/releases/tags/v$BRAVE_VERSION" \
+            | grep "$TARGETARCH.deb\",$" \
+            | cut -d : -f 2,3 \
+            | tr -d \",\,,\[:space:]) \
+            && curl -sL "https://github.com/brave/brave-browser/releases/download/v$BRAVE_VERSION/$debname" -o brave.deb ; \
+    fi
 
+RUN echo "installing Brave from $TARGETPLATFORM"; dpkg -i brave.deb; apt-get -f install -y; rm -f brave.deb
+
+RUN ln -s /usr/bin/brave-browser /usr/bin/chromium-browser
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# -----------------------------------------------------------------------------
+
+FROM base AS chrome
+
+ARG TARGETARCH
+ARG TARGETPLATFORM
+
+COPY $BROWSER_VERSION/$TARGETPLATFORM/*.deb /tmp/deb/
+
+RUN echo "installing Chrome/Chromium from $TARGETPLATFORM"; dpkg -i /tmp/deb/*.deb; rm -rf /tmp/deb/
