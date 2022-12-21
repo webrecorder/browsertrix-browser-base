@@ -25,21 +25,19 @@ jobs:
       -
         name: Set env var with chrome-version
         id: set-browser-version
-        run: echo "Saving Chrome version to environment"
-        env:
-          CHROME_VERSION: "${{ steps.package.outputs.content }}"
+        run: echo "CHROME_VERSION=${{ steps.package.outputs.content }}" >> $GITHUB_ENV
       -
         name: Create draft release on GitHub if doesn't exist
         uses: ncipollo/release-action@v1
         with:
           draft: true
-          tag: chrome-${CHROME_VERSION}
+          tag: chrome-${{ env.CHROME_VERSION }}
       -
         name: Prepare
         id: prep
         run: |
           DOCKER_IMAGE=webrecorder/browsertrix-browser-base
-          TAGS="${DOCKER_IMAGE}:chrome-${CHROME_VERSION},${DOCKER_IMAGE}:chrome-latest"
+          TAGS="${DOCKER_IMAGE}:chrome-${{ env.CHROME_VERSION }},${DOCKER_IMAGE}:chrome-latest"
           echo ::set-output name=tags::${TAGS}
       -
         name: Set up QEMU
@@ -63,7 +61,7 @@ jobs:
           target: chrome
           build-args:
             BROWSER=chrome
-            BROWSER_VERSION=${CHROME_VERSION}
+            BROWSER_VERSION=${{ env.CHROME_VERSION }}
           tags: ${{ steps.prep.outputs.tags }}
           platforms: "linux/amd64,linux/arm64"
       -

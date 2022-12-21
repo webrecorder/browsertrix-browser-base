@@ -25,21 +25,19 @@ jobs:
       -
         name: Set env var with brave-version
         id: set-browser-version
-        run: echo "Saving Brave version to environment"
-        env:
-          BRAVE_VERSION: "${{ steps.package.outputs.content }}"
+        run: echo "BRAVE_VERSION=${{ steps.package.outputs.content }}" >> $GITHUB_ENV
       -
         name: Create draft release on GitHub if doesn't exist
         uses: ncipollo/release-action@v1
         with:
           draft: true
-          tag: brave-${BRAVE_VERSION}
+          tag: brave-${{ env.BRAVE_VERSION }}
       -
         name: Prepare
         id: prep
         run: |
           DOCKER_IMAGE=webrecorder/browsertrix-browser-base
-          TAGS="${DOCKER_IMAGE}:brave-${BRAVE_VERSION},${DOCKER_IMAGE}:brave-latest"
+          TAGS="${DOCKER_IMAGE}:brave-${{ env.BRAVE_VERSION }},${DOCKER_IMAGE}:brave-latest"
           echo ::set-output name=tags::${TAGS}
       -
         name: Set up QEMU
@@ -63,7 +61,7 @@ jobs:
           target: brave
           build-args:
             BROWSER=brave
-            BROWSER_VERSION=${BRAVE_VERSION}
+            BROWSER_VERSION=${{ env.BRAVE_VERSION }}
           tags: ${{ steps.prep.outputs.tags }}
           platforms: "linux/amd64,linux/arm64"
       -
