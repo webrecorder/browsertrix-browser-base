@@ -1,33 +1,45 @@
-name: Build and Publish Browsesrtix Browser Base
+name: Build and Publish Browsertrix Browser Base with Brave
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - main
 
 jobs:
   build_and_push:
     name: Build x86 and ARM Images and push to Dockerhub
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - 
         name: Check out the repo
         uses: actions/checkout@v3
         with:
           lfs: true
-
+      -
+        name: Read brave-version.txt
+        id: package
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./brave-version.txt
+      -
+        name: Set env var with brave-version
+        id: set-browser-version
+        run: echo "Saving Brave version to environment"
+        env:
+          BRAVE_VERSION: "${{ steps.package.outputs.content }}"
+      -
+        name: Create draft release on GitHub if doesn't exist
+        uses: ncipollo/release-action@v1
+        with:
+          draft: true
+          tag: brave-${BRAVE_VERSION}
       -
         name: Prepare
         id: prep
         run: |
           DOCKER_IMAGE=webrecorder/browsertrix-browser-base
-          VERSION=edge
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            VERSION=${GITHUB_REF#refs/tags/}
-          elif [[ $GITHUB_REF == refs/heads/* ]]; then
-            VERSION=$(echo ${GITHUB_REF#refs/heads/} | sed -r 's#/+#-#g')
-          elif [[ $GITHUB_REF == refs/pull/* ]]; then
-            VERSION=pr-${{ github.event.number }}
-          fi
-          TAGS="${DOCKER_IMAGE}:${VERSION},${DOCKER_IMAGE}:latest"
+          TAGS="${DOCKER_IMAGE}:brave-${BRAVE_VERSION},${DOCKER_IMAGE}:brave-latest"
           echo ::set-output name=tags::${TAGS}
       -
         name: Set up QEMU
@@ -48,7 +60,10 @@ jobs:
         with:
           context: .
           push: true
-          build-args: VERSION=105
+          target: brave
+          build-args:
+            BROWSER=brave
+            BROWSER_VERSION=${BRAVE_VERSION}
           tags: ${{ steps.prep.outputs.tags }}
           platforms: "linux/amd64,linux/arm64"
       -
