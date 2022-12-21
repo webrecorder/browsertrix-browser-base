@@ -31,6 +31,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           draft: true
+          allowUpdates: true
           tag: brave-${{ env.BRAVE_VERSION }}
       -
         name: Prepare
