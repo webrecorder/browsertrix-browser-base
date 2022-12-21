@@ -59,9 +59,9 @@ jobs:
           context: .
           push: true
           target: brave
-          build-args:
+          build-args: |
             BROWSER=brave
-            BROWSER_VERSION="${{ env.BRAVE_VERSION }}"
+            BROWSER_VERSION=${{ env.BRAVE_VERSION }}
           tags: ${{ steps.prep.outputs.tags }}
           platforms: "linux/amd64,linux/arm64"
       -
