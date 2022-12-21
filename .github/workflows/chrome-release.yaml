@@ -61,7 +61,7 @@ jobs:
           target: chrome
           build-args:
             BROWSER=chrome
-            BROWSER_VERSION=${{ env.CHROME_VERSION }}
+            BROWSER_VERSION="${{ env.CHROME_VERSION }}"
           tags: ${{ steps.prep.outputs.tags }}
           platforms: "linux/amd64,linux/arm64"
       -
