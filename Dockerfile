@@ -49,11 +49,11 @@ RUN if ["$BROWSER_VERSION" = "latest" ] ; \
             | tr -d \",\,,\[:space:]) \
         && curl -sL "https://github.com/brave/brave-browser/releases/download/$tagname/$debname" -o brave.deb ; \
     else \
-        debname=$(curl -sL "https://api.github.com/repos/brave/brave-browser/releases/tags/v$BRAVE_VERSION" \
+        debname=$(curl -sL "https://api.github.com/repos/brave/brave-browser/releases/tags/v${BROWSER_VERSION}" \
             | grep "$TARGETARCH.deb\",$" \
             | cut -d : -f 2,3 \
             | tr -d \",\,,\[:space:]) \
-            && curl -sL "https://github.com/brave/brave-browser/releases/download/v$BRAVE_VERSION/$debname" -o brave.deb ; \
+            && curl -sL "https://github.com/brave/brave-browser/releases/download/v${BROWSER_VERSION}/$debname" -o brave.deb ; \
     fi
 
 RUN echo "installing Brave from $TARGETPLATFORM"; dpkg -i brave.deb; apt-get -f install -y; rm -f brave.deb
