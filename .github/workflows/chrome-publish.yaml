@@ -1,0 +1,63 @@
+name: Build and Publish Browsertrix Browser Base with Chrome
+on:
+  release:
+    types: [published]
+
+jobs:
+  build_and_push:
+    name: Build x86 and ARM Images and push to Dockerhub
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+      -
+        name: Read chrome-version.txt
+        id: package
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./chrome-version.txt
+      -
+        name: Set env var with chrome-version
+        id: set-browser-version
+        run: echo "CHROME_VERSION=${{ steps.package.outputs.content }}" >> $GITHUB_ENV
+      -
+        name: Prepare
+        id: prep
+        run: |
+          DOCKER_IMAGE=webrecorder/browsertrix-browser-base
+          TAGS="${DOCKER_IMAGE}:chrome-${{ env.CHROME_VERSION }},${DOCKER_IMAGE}:chrome-latest"
+          echo ::set-output name=tags::${TAGS}
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      -
+        name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          target: chrome
+          build-args: |
+            BROWSER=chrome
+            BROWSER_VERSION=${{ env.CHROME_VERSION }}
+          tags: ${{ steps.prep.outputs.tags }}
+          platforms: "linux/amd64,linux/arm64"
+      -
+        name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
