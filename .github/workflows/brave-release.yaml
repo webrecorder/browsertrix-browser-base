@@ -39,7 +39,7 @@ jobs:
         id: prep
         run: |
           DOCKER_IMAGE=webrecorder/browsertrix-browser-base
-          TAGS="${DOCKER_IMAGE}:brave-latest"
+          TAGS="${DOCKER_IMAGE}:brave-${{ env.BRAVE_VERSION }}"
           echo ::set-output name=tags::${TAGS}
       -
         name: Set up QEMU
