@@ -60,6 +60,8 @@ RUN echo "installing Brave from $TARGETPLATFORM"; dpkg -i brave.deb; apt-get -f 
 
 RUN ln -s /usr/bin/brave-browser /usr/bin/chromium-browser
 
+RUN /usr/bin/brave-browser --version
+
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # -----------------------------------------------------------------------------
