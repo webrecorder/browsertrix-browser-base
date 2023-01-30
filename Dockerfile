@@ -74,3 +74,10 @@ ARG TARGETPLATFORM
 COPY $BROWSER_VERSION/$TARGETPLATFORM/*.deb /tmp/deb/
 
 RUN echo "installing Chrome/Chromium from $TARGETPLATFORM"; dpkg -i /tmp/deb/*.deb; rm -rf /tmp/deb/
+
+RUN if [ "$TARGETARCH" = "amd64" ] ; \
+    then \
+        /usr/bin/google-chrome --version ; \
+    else \
+        /usr/bin/chromium-browser --version ; \
+    fi
