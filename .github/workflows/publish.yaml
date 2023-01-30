@@ -1,9 +1,7 @@
 name: Build and Publish Browsertrix Browser Base by Release Tag
 on:
-  push:
-
-  #release:
-  #  types: [published]
+  release:
+    types: [published]
 
 jobs:
   build_and_push:
@@ -53,7 +51,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: false
+          push: true
           target: ${{ env.BROWSER }}
           build-args: |
             BROWSER=${{ env.BROWSER }}
