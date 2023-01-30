@@ -37,7 +37,7 @@ RUN curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://br
     && echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg arch=amd64] https://brave-browser-apt-release.s3.brave.com/ stable main"|tee /etc/apt/sources.list.d/brave-browser-release.list \
     && apt-get update
 
-RUN if ["$BROWSER_VERSION" = "latest" ] ; \
+RUN if [ "$BROWSER_VERSION" = "latest" ] ; \
     then \
         debname=$(curl -sL "https://api.github.com/repos/brave/brave-browser/releases/latest" \
             | grep "$TARGETARCH.deb\",$" \
