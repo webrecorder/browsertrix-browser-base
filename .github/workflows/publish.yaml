@@ -1,9 +1,6 @@
 name: Build and Publish Browsertrix Browser Base by Release Tag
 on:
   push:
-    tags:
-      - "chrome-"
-      - "brave-"
 
   #release:
   #  types: [published]
