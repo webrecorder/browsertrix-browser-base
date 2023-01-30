@@ -16,7 +16,7 @@ RUN apt-get update -y && apt-get install --no-install-recommends -qqy software-p
       libxtst6 xdg-utils libc-bin hicolor-icon-theme python3-pip python3-dev \
       fonts-arphic-ukai fonts-arphic-uming fonts-freefont-ttf fonts-gfs-neohellenic fonts-indic fonts-ipafont-mincho fonts-ipafont-gothic fonts-kacst \
       fonts-liberation fonts-noto-cjk fonts-noto-color-emoji fonts-roboto fonts-stix fonts-thai-tlwg fonts-ubuntu fonts-unfonts-core fonts-wqy-zenhei \
-      msttcorefonts
+      msttcorefonts libu2f-udev libvulkan1
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
     && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
@@ -74,3 +74,10 @@ ARG TARGETPLATFORM
 COPY $BROWSER_VERSION/$TARGETPLATFORM/*.deb /tmp/deb/
 
 RUN echo "installing Chrome/Chromium from $TARGETPLATFORM"; dpkg -i /tmp/deb/*.deb; rm -rf /tmp/deb/
+
+RUN if [ "$TARGETARCH" = "amd64" ] ; \
+    then \
+        /usr/bin/google-chrome --version ; \
+    else \
+        /usr/bin/chromium-browser --version ; \
+    fi
