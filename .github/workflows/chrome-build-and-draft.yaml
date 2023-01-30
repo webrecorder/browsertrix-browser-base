@@ -1,12 +1,10 @@
-name: Create Draft Release for Chrome-Based Browsertrix Browser Base and Publish Latest
+name: Test Build and Create Draft Release for Chrome-Based Browsertrix Browser Base
 on:
   push:
-    branches:
-      - main
 
 jobs:
-  build_and_push:
-    name: Build x86 and ARM Images and push to Dockerhub
+  build:
+    name: Build x86 and ARM Images
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -52,6 +50,18 @@ jobs:
           tags: webrecorder/browsertrix-browser-base:chrome-test
           platforms: "linux/amd64,linux/arm64"
       -
+        name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
+  draft_release:
+    needs: build
+    name: Create draft release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    if: github.ref == 'refs/heads/main'
+    steps:
+      -
         name: Create draft release on GitHub if doesn't exist
         uses: ncipollo/release-action@v1
         with:
@@ -59,7 +69,3 @@ jobs:
           allowUpdates: true
           tag: chrome-${{ env.CHROME_VERSION }}
           body: "This release publishes the image: `webrecorder/browsertrix-browser-base:chrome-${{ env.CHROME_VERSION }}`\n\nThe image is hosted [on DockerHub](https://hub.docker.com/r/webrecorder/browsertrix-browser-base/tags?name=chrome-${{ env.CHROME_VERSION }})"
- 
-      -
-        name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
