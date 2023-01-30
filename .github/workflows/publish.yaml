@@ -1,4 +1,4 @@
-name: Build and Publish Browsertrix Browser Base with Chrome
+name: Build and Publish Browsertrix Browser Base by Release Tag
 on:
   release:
     types: [published]
@@ -16,21 +16,22 @@ jobs:
         with:
           lfs: true
       -
-        name: Read chrome-version.txt
-        id: package
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: ./chrome-version.txt
-      -
-        name: Set env var with chrome-version
+        name: Set browser version
         id: set-browser-version
-        run: echo "CHROME_VERSION=${{ steps.package.outputs.content }}" >> $GITHUB_ENV
+        run: |
+          IFS='/-'; PARTS=($GITHUB_REF); unset IFS;
+          echo "BROWSER=${PARTS[2]}" >> $GITHUB_ENV
+          echo "BROWSER_VERSION=${PARTS[3]}" >> $GITHUB_ENV
+          if [[ "${PARTS[2]}" != "chrome" && "${PARTS[2]}" != "brave" ]]; then
+            echo "Exiting, invalid browser in tag '${PARTS[2]}', must be either 'chrome' or 'brave'"
+            exit 1
+          fi
       -
         name: Prepare
         id: prep
         run: |
           DOCKER_IMAGE=webrecorder/browsertrix-browser-base
-          TAGS="${DOCKER_IMAGE}:chrome-${{ env.CHROME_VERSION }}"
+          TAGS="${DOCKER_IMAGE}:${{ env.BROWSER }}-${{ env.BROWSER_VERSION }},${DOCKER_IMAGE}:${{ env.BROWSER }}"
           echo ::set-output name=tags::${TAGS}
       -
         name: Set up QEMU
@@ -51,10 +52,10 @@ jobs:
         with:
           context: .
           push: true
-          target: chrome
+          target: ${{ env.BROWSER }}
           build-args: |
-            BROWSER=chrome
-            BROWSER_VERSION=${{ env.CHROME_VERSION }}
+            BROWSER=${{ env.BROWSER }}
+            BROWSER_VERSION=${{ env.BROWSER_VERSION }}
           tags: ${{ steps.prep.outputs.tags }}
           platforms: "linux/amd64,linux/arm64"
       -
