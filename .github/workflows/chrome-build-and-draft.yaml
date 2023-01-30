@@ -61,6 +61,9 @@ jobs:
       contents: write
     if: github.ref == 'refs/heads/main'
     steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v3
       -
         name: Read chrome-version.txt
         id: package
