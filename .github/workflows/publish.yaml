@@ -31,7 +31,7 @@ jobs:
         id: prep
         run: |
           DOCKER_IMAGE=webrecorder/browsertrix-browser-base
-          TAGS="${DOCKER_IMAGE}:${{ env.BROWSER }}-${{ env.BROWSER_VERSION }},${DOCKER_IMAGE}:latest"
+          TAGS="${DOCKER_IMAGE}:${{ env.BROWSER }}-${{ env.BROWSER_VERSION }},${DOCKER_IMAGE}:${{ env.BROWSER }}"
           echo ::set-output name=tags::${TAGS}
       -
         name: Set up QEMU
