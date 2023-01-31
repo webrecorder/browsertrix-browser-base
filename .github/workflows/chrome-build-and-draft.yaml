@@ -1,6 +1,8 @@
 name: Test Build and Create Draft Release for Chrome-Based Browsertrix Browser Base
 on:
   push:
+    branches:
+      - "*"
 
 jobs:
   build:

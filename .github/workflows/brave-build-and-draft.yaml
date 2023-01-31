@@ -1,6 +1,8 @@
 name: Test Build and Create Draft Release for Brave-Based Browsertrix Browser Base
 on:
   push:
+    branches:
+      - "*"
 
 jobs:
   build:
@@ -61,6 +63,9 @@ jobs:
       contents: write
     if: github.ref == 'refs/heads/main'
     steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v3
       -
         name: Read brave-version.txt
         id: package
