@@ -81,6 +81,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           draft: true
+          skipIfReleaseExists: true
           allowUpdates: true
           tag: brave-${{ env.BRAVE_VERSION }}
           body: "This release publishes the image: `webrecorder/browsertrix-browser-base:brave-${{ env.BRAVE_VERSION }}`\n\nThe image is hosted [on DockerHub](https://hub.docker.com/r/webrecorder/browsertrix-browser-base/tags?name=brave-${{ env.BRAVE_VERSION }})"
