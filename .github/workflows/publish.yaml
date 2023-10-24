@@ -19,11 +19,11 @@ jobs:
         name: Set browser version
         id: set-browser-version
         run: |
-          IFS='/-'; PARTS=($GITHUB_REF); unset IFS;
-          echo "BROWSER=${PARTS[2]}" >> $GITHUB_ENV
-          echo "BROWSER_VERSION=${PARTS[3]}" >> $GITHUB_ENV
-          if [[ "${PARTS[2]}" != "chrome" && "${PARTS[2]}" != "brave" ]]; then
-            echo "Exiting, invalid browser in tag '${PARTS[2]}', must be either 'chrome' or 'brave'"
+          IFS='/-'; PARTS=($GITHUB_REF_NAME); unset IFS;
+          echo "BROWSER=${PARTS[0]}" >> $GITHUB_ENV
+          echo "BROWSER_VERSION=${PARTS[1]}" >> $GITHUB_ENV
+          if [[ "${PARTS[0]}" != "chrome" && "${PARTS[0]}" != "brave" ]]; then
+            echo "Exiting, invalid browser in tag '${PARTS[0]}', must be either 'chrome' or 'brave'"
             exit 1
           fi
       -
