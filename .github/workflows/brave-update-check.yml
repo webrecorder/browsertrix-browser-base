@@ -11,7 +11,13 @@ jobs:
     if: github.event_name != 'schedule' || (github.event_name == 'schedule' && github.repository == 'webrecorder/browsertrix-browser-base')
 
     steps:
-      - uses: actions/checkout@v4        
+      - uses: actions/checkout@v4
+
+      - name: Set up Git
+        run: |
+          git config user.email "dev@webrecorder.net"
+          git config user.name "Webrecorder Dev Automation"
+
       - name: Run update script
         run: ./update-brave.sh
         shell: bash
