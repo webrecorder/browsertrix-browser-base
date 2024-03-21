@@ -12,6 +12,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+            token: ${{ secrets.GHPROJECT_TOKEN }}
 
       - name: Set up Git
         run: |
