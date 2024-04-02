@@ -25,6 +25,14 @@ if [ "$latest_version_when_sorted" != "$latest_version" ]; then
     exit 1
 fi
 
+release_http_status=$(\
+    curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/brave/brave-browser/releases/tags/v${latest_version})
+
+if [ "$release_http_status" != "200" ]; then
+    echo "Release not found, Github API returned $release_http_status"
+    exit 1
+fi
+
 echo "updating brave-version.txt to $latest_version"
 
 echo $latest_version > brave-version.txt
