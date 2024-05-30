@@ -1,4 +1,4 @@
-FROM ubuntu:jammy AS base
+FROM ubuntu:noble AS base
 
 ARG BROWSER="brave"
 ENV BROWSER=$BROWSER
@@ -12,7 +12,7 @@ RUN apt-get update -y && apt-get install --no-install-recommends -qqy software-p
     && apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy build-essential locales-all redis-server apt-transport-https  \
       curl git socat jq xvfb x11vnc gosu gpg gpg-agent ca-certificates libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
-      libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libpango-1.0-0 libcairo2 libasound2 libgtk-3-0 \
+      libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libpango-1.0-0 libcairo2 libasound2t64 libgtk-3-0 \
       libxtst6 xdg-utils libc-bin hicolor-icon-theme python3-pip python3-dev \
       fonts-arphic-ukai fonts-arphic-uming fonts-freefont-ttf fonts-gfs-neohellenic fonts-indic fonts-ipafont-mincho fonts-ipafont-gothic fonts-kacst \
       fonts-liberation fonts-noto-cjk fonts-noto-color-emoji fonts-roboto fonts-stix fonts-thai-tlwg fonts-ubuntu fonts-unfonts-core fonts-wqy-zenhei \
