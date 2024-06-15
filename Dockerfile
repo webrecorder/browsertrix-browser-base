@@ -15,7 +15,7 @@ RUN apt-get update -y && apt-get install --no-install-recommends -qqy software-p
       libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libpango-1.0-0 libcairo2 libasound2 libgtk-3-0 \
       libxtst6 xdg-utils libc-bin hicolor-icon-theme python3-pip python3-dev \
       fonts-arphic-ukai fonts-arphic-uming fonts-freefont-ttf fonts-gfs-neohellenic fonts-indic fonts-ipafont-mincho fonts-ipafont-gothic fonts-kacst \
-      fonts-liberation fonts-noto-cjk fonts-noto-color-emoji fonts-roboto fonts-stix fonts-thai-tlwg fonts-ubuntu fonts-unfonts-core fonts-wqy-zenhei \
+      fonts-liberation fonts-noto-cjk fonts-noto-color-emoji fonts-roboto fonts-stix fonts-thai-tlwg fonts-sil-padauk fonts-ubuntu fonts-unfonts-core fonts-wqy-zenhei \
       msttcorefonts libu2f-udev libvulkan1 openssh-client sshpass
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
