@@ -22,7 +22,7 @@ latest_version_when_sorted=$(\
 
 if [ "$latest_version_when_sorted" != "$latest_version" ]; then
     echo "current version is newer than latest version"
-    exit 1
+    exit 0
 fi
 
 release_http_status=$(\
