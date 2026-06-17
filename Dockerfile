@@ -4,6 +4,7 @@ ARG BROWSER="brave"
 ENV BROWSER=$BROWSER
 ARG BROWSER_VERSION="latest"
 ENV BROWSER_VERSION=$BROWSER_VERSION
+ARG TARGETARCH
 
 # Accept Microsoft EULA agreement for ttf-mscorefonts-installer
 RUN echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections
@@ -18,13 +19,14 @@ RUN apt-get update -y && apt-get install --no-install-recommends -qqy software-p
       fonts-liberation fonts-noto-cjk fonts-noto-color-emoji fonts-roboto fonts-stix fonts-thai-tlwg fonts-sil-padauk fonts-ubuntu fonts-unfonts-core fonts-wqy-zenhei \
       msttcorefonts libu2f-udev libvulkan1 openssh-client sshpass autossh
 
-# Repo keys are stored as dedicated keyrings scoped via signed-by, rather than
-# apt-key (deprecated, trusts the key for every repo) or piping the NodeSource
-# setup script to bash (executes unverified remote code as root)
+# Yarn: https://classic.yarnpkg.com/en/docs/install#debian-stable
+# Node.js: replicates the repo setup from https://deb.nodesource.com/setup_24.x
+# (deb822 .sources + apt pin) without piping the setup script to bash
 RUN curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor -o /usr/share/keyrings/yarnpkg-archive-keyring.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/yarnpkg-archive-keyring.gpg] https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
-    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource-keyring.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/nodesource-keyring.gpg] https://deb.nodesource.com/node_24.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg \
+    && printf 'Types: deb\nURIs: https://deb.nodesource.com/node_24.x\nSuites: nodistro\nComponents: main\nArchitectures: %s\nSigned-By: /usr/share/keyrings/nodesource.gpg\n' "$TARGETARCH" > /etc/apt/sources.list.d/nodesource.sources \
+    && printf 'Package: nodejs\nPin: origin deb.nodesource.com\nPin-Priority: 600\n' > /etc/apt/preferences.d/nodejs \
     && apt-get update -y && apt-get install --no-install-recommends -qqy nodejs yarn \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
