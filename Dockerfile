@@ -1,7 +1,7 @@
 FROM ubuntu:noble AS base
 
-ARG BROWSER="brave"
-ENV BROWSER=$BROWSER
+ARG BROWSER_NAME="brave-origin"
+ENV BROWSER_NAME=$BROWSER_NAME
 ARG BROWSER_VERSION="latest"
 ENV BROWSER_VERSION=$BROWSER_VERSION
 ARG TARGETARCH
@@ -42,7 +42,7 @@ ARG TARGETPLATFORM
 RUN curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg arch=amd64] https://brave-browser-apt-release.s3.brave.com/ stable main"|tee /etc/apt/sources.list.d/brave-browser-release.list
 
-# Select the brave-browser asset explicitly: releases also ship brave-origin
+# Select the brave-browser asset explicitly: either brave-browser or brave-origin as set in BROWSER_NAME
 # debs, so a bare "$TARGETARCH.deb" match picks up the wrong package
 RUN if [ "$BROWSER_VERSION" = "latest" ] ; \
     then \
@@ -51,7 +51,7 @@ RUN if [ "$BROWSER_VERSION" = "latest" ] ; \
         tagname="v${BROWSER_VERSION}" ; \
     fi \
     && debname=$(curl -fsSL "https://api.github.com/repos/brave/brave-browser/releases/tags/${tagname}" \
-        | jq -r --arg arch "$TARGETARCH" '.assets[].name | select(test("^brave-browser_.*_" + $arch + "\\.deb$"))') \
+        | jq -r --arg arch "$TARGETARCH" --arg browser "$BROWSER_NAME" '.assets[].name | select(test("^" + $browser + "_.*_" + $arch + "\\.deb$"))') \
     && test -n "$debname" \
     && curl -fsSL "https://github.com/brave/brave-browser/releases/download/${tagname}/${debname}" -o brave.deb
 
@@ -62,24 +62,6 @@ RUN echo "installing Brave from $TARGETPLATFORM" \
     && rm -f brave.deb \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN ln -s /usr/bin/brave-browser /usr/bin/chromium-browser
+RUN ln -s /usr/bin/$BROWSER_NAME /usr/bin/chromium-browser
 
-RUN /usr/bin/brave-browser --version
-
-# -----------------------------------------------------------------------------
-
-FROM base AS chrome
-
-ARG TARGETARCH
-ARG TARGETPLATFORM
-
-COPY $BROWSER_VERSION/$TARGETPLATFORM/*.deb /tmp/deb/
-
-RUN echo "installing Chrome/Chromium from $TARGETPLATFORM" && dpkg -i /tmp/deb/*.deb && rm -rf /tmp/deb/
-
-RUN if [ "$TARGETARCH" = "amd64" ] ; \
-    then \
-        /usr/bin/google-chrome --version ; \
-    else \
-        /usr/bin/chromium-browser --version ; \
-    fi
+RUN /usr/bin/$BROWSER_NAME --version

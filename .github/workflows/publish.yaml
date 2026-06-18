@@ -55,6 +55,7 @@ jobs:
           target: ${{ env.BROWSER }}
           build-args: |
             BROWSER=${{ env.BROWSER }}
+            BROWSER_NAME=brave-origin
             BROWSER_VERSION=${{ env.BROWSER_VERSION }}
           tags: ${{ steps.prep.outputs.tags }}
           platforms: "linux/amd64,linux/arm64"
