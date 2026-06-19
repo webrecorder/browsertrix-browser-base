@@ -47,7 +47,7 @@ jobs:
           push: false
           target: brave
           build-args: |
-            BROWSER=brave
+            BROWSER_NAME=brave-origin
             BROWSER_VERSION=${{ env.BRAVE_VERSION }}
           tags: webrecorder/browsertrix-browser-base:brave-test
           platforms: "linux/amd64,linux/arm64"
