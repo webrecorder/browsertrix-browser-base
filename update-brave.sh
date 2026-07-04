@@ -3,7 +3,7 @@ set -e
 
 current_version=$(cat brave-version.txt)
 latest_version=$(\
-    curl -s https://api.github.com/repos/brave/brave-browser/releases/latest \
+    curl -s -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/brave/brave-browser/releases/latest \
     | jq '.tag_name' \
     | sed -e 's/^"v//' -e 's/\"//')
 
@@ -26,7 +26,7 @@ if [ "$latest_version_when_sorted" != "$latest_version" ]; then
 fi
 
 release_http_status=$(\
-    curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/brave/brave-browser/releases/tags/v${latest_version})
+    curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/brave/brave-browser/releases/tags/v${latest_version})
 
 if [ "$release_http_status" != "200" ]; then
     echo "Release not found, Github API returned $release_http_status"
