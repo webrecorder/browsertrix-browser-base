@@ -44,16 +44,18 @@ RUN curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://br
 
 # Select the brave-browser asset explicitly: either brave-browser or brave-origin as set in BROWSER_NAME
 # debs, so a bare "$TARGETARCH.deb" match picks up the wrong package
-RUN if [ "$BROWSER_VERSION" = "latest" ] ; \
+RUN --mount=type=secret,id=gh_token \
+    GH_TOKEN=$(cat /run/secrets/gh_token); \
+    if [ "$BROWSER_VERSION" = "latest" ] ; \
     then \
-        tagname=$(curl -fsSL "https://api.github.com/repos/brave/brave-browser/releases/latest" | jq -r '.tag_name') ; \
+        tagname=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/brave/brave-browser/releases/latest" | jq -r '.tag_name') ; \
     else \
         tagname="v${BROWSER_VERSION}" ; \
     fi \
-    && debname=$(curl -fsSL "https://api.github.com/repos/brave/brave-browser/releases/tags/${tagname}" \
+    && debname=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/brave/brave-browser/releases/tags/${tagname}" \
         | jq -r --arg arch "$TARGETARCH" --arg browser "$BROWSER_NAME" '.assets[].name | select(test("^" + $browser + "_.*_" + $arch + "\\.deb$"))') \
     && test -n "$debname" \
-    && curl -fsSL "https://github.com/brave/brave-browser/releases/download/${tagname}/${debname}" -o brave.deb
+    && curl -fsSL -H "Authorization: Bearer $GH_TOKEN" "https://github.com/brave/brave-browser/releases/download/${tagname}/${debname}" -o brave.deb
 
 # apt-get install (not dpkg -i; apt-get -f) so a corrupt or missing deb fails the build
 RUN echo "installing Brave from $TARGETPLATFORM" \
